@@ -1,0 +1,499 @@
+<!doctype html>
+<html lang="az">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Tərtib edən Abdullayev Əli 3 d login səhifə</title>
+<style>
+  :root{
+    --bg-gradient-1: #0f172a;
+    --bg-gradient-2: #6b1b4d;
+    --card-bg: rgba(255,255,255,0.06);
+    --accent: #ff4da6;
+    --accent-2: #ffd166;
+    --glass-border: rgba(255,255,255,0.08);
+  }
+
+  html,body{height:100%;margin:0;font-family:Inter,ui-sans-serif,system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial;}
+  body{
+    background: linear-gradient(180deg,var(--bg-gradient-1) 0%, #151225 40%, #1b1130 100%);
+    color: #fff;
+    overflow:hidden;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+
+  canvas#bg {
+    position:fixed;
+    inset:0;
+    width:100%;
+    height:100%;
+    display:block;
+    z-index:0;
+    transform: translateZ(0);
+  }
+
+  .layer {
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:1;
+    transform-style:preserve-3d;
+  }
+  .layer::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background: radial-gradient(ellipse at 10% 10%, rgba(255,77,166,0.06), transparent 8%),
+                radial-gradient(ellipse at 90% 90%, rgba(255,209,102,0.03), transparent 10%);
+    mix-blend-mode: screen;
+  }
+
+  .card {
+    position:relative;
+    z-index:2;
+    width: min(420px, 92vw);
+    padding: clamp(18px, 3vw, 30px);
+    border-radius: 18px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+    box-shadow: 0 8px 40px rgba(2,6,23,0.7);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(8px) saturate(120%);
+    transform: translateZ(60px) perspective(800px) rotateX(6deg);
+    transition: transform .35s ease;
+  }
+  .card:hover{ transform: translateZ(80px) perspective(800px) rotateX(2deg); }
+
+  header{
+    display:flex;
+    gap:12px;
+    align-items:center;
+    margin-bottom: 16px;
+  }
+  .logo {
+    width:56px;height:56px;border-radius:12px;
+    background: linear-gradient(135deg,var(--accent),#ff7ab0);
+    display:flex;align-items:center;justify-content:center;
+    font-weight:700;font-size:20px;box-shadow: 0 6px 18px rgba(255,77,166,0.12);
+  }
+  h1{font-size:20px;margin:0}
+  p.lead{margin:4px 0 12px;color:rgba(255,255,255,0.75);font-size:13px}
+
+  form{display:grid;gap:12px}
+  label{font-size:13px;color:rgba(255,255,255,0.88)}
+  .input {
+    position:relative;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  input[type="text"], input[type="password"]{
+    flex:1;
+    padding:12px 14px;
+    border-radius:10px;
+    border:1px solid rgba(255,255,255,0.06);
+    background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    color:#fff;
+    outline:none;
+    font-size:14px;
+    transition:box-shadow .18s, border-color .18s;
+  }
+  input::placeholder{color:rgba(255,255,255,0.35)}
+  input:focus { box-shadow: 0 6px 18px rgba(107,27,77,0.12); border-color: rgba(255,77,166,0.35); }
+
+  .eye-btn{
+    background:transparent;border:none;color:rgba(255,255,255,0.6);cursor:pointer;padding:6px;border-radius:8px;
+  }
+
+  .row {
+    display:flex;justify-content:space-between;align-items:center;font-size:13px;color:rgba(255,255,255,0.8)
+  }
+  .remember{
+    display:flex;align-items:center;gap:8px;
+  }
+  .btn {
+    width:100%;
+    padding:12px 14px;border-radius:12px;border:0;
+    background: linear-gradient(90deg,var(--accent), var(--accent-2));
+    color:#140915;font-weight:700;font-size:15px;cursor:pointer;
+    box-shadow: 0 8px 30px rgba(255,77,166,0.14);
+    transition: transform .12s ease, box-shadow .12s ease;
+  }
+  .btn:active{ transform: translateY(1px) }
+
+  .footer {
+    margin-top:8px;font-size:12px;color:rgba(255,255,255,0.6);text-align:center
+  }
+
+  .hearts-inline{display:flex;gap:6px;align-items:center}
+  .hearts-inline .h{
+    width:12px;height:12px;display:inline-block;
+    transform:translateY(2px) rotate(45deg);
+    border-radius:2px;box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06);
+    animation: beat .9s infinite ease-in-out;
+    background: linear-gradient(180deg, #ff557f, #ff2d7a);
+  }
+  .hearts-inline .h:nth-child(2){ animation-delay:.14s }
+  .hearts-inline .h:nth-child(3){ animation-delay:.25s }
+
+  @keyframes beat {
+    0%{ transform: scale(1) rotate(45deg) translateY(0) }
+    50%{ transform: scale(1.18) rotate(45deg) translateY(-3px) }
+    100%{ transform: scale(1) rotate(45deg) translateY(0) }
+  }
+
+  @media (max-width:420px){
+    .card{ padding:18px 16px; border-radius:14px;}
+    .logo{width:48px;height:48px}
+    h1{font-size:18px}
+  }
+</style>
+</head>
+<body>
+    
+  <canvas id="bg" aria-hidden="true"></canvas>
+  <div class="layer" aria-hidden="true"></div>
+
+  <main class="card" role="main" aria-labelledby="login-title">
+    <header>
+      <div class="logo" aria-hidden="true">♥</div>
+      <div>
+        <h1 id="login-title">Giriş — Gizli Dünyam</h1>
+        <div class="hearts-inline" aria-hidden="true">
+          <span class="h"></span><span class="h"></span><span class="h"></span>
+        </div>
+        <p class="lead">Sevgiyə aid hesabına daxil ol. Sənə aid xatirələr təhlükəsizdir.</p>
+      </div>
+    </header>
+
+    <form id="loginForm" autocomplete="on" novalidate>
+      <div>
+        <label for="user">İstifadəçi adı</label>
+        <div class="input">
+          <input id="user" name="user" type="text" placeholder="adın və ya e-poçt" required aria-required="true" />
+        </div>
+      </div>
+
+      <div>
+        <label for="pass">Parol</label>
+        <div class="input">
+          <input id="pass" name="pass" type="password" placeholder="parolunu daxil et" required aria-required="true" />
+          <button type="button" class="eye-btn" id="togglePass" aria-label="parolu göstər/bağla">👁️</button>
+        </div>
+      </div>
+
+      <div class="row">
+        <label class="remember">
+          <input type="checkbox" id="remember" name="remember" />
+          <span>Yadda saxla</span>
+        </label>
+        <a href="#" id="forgot" style="color:rgba(255,255,255,0.85);text-decoration:none;font-weight:600">Unutmusan?</a>
+      </div>
+
+      <div>
+        <button class="btn" type="submit">Daxil ol</button>
+      </div>
+
+      <div class="footer">
+        <small>Hələ üzv deyilsən? <a href="#" style="color: #ffd166; text-decoration:none;">Qeydiyyat</a></small>
+      </div>
+    </form>
+  </main>
+
+<script>
+/* ------------ Heart particle system on canvas ------------- */
+(() => {
+  const canvas = document.getElementById('bg');
+  const ctx = canvas.getContext('2d');
+  let W = canvas.width = innerWidth;
+  let H = canvas.height = innerHeight;
+  const DPR = window.devicePixelRatio || 1;
+  canvas.width = W * DPR;
+  canvas.height = H * DPR;
+  canvas.style.width = W + 'px';
+  canvas.style.height = H + 'px';
+  ctx.scale(DPR, DPR);
+
+  function drawHeart(ctx, x, y, size, opacity, angle) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(angle);
+    ctx.beginPath();
+    const s = size/10;
+    ctx.moveTo(0, -4*s);
+    ctx.bezierCurveTo(2*s, -8*s, 8*s, -8*s, 8*s, -2*s);
+    ctx.bezierCurveTo(8*s, 4*s, 4*s, 7*s, 0, 10*s);
+    ctx.bezierCurveTo(-4*s, 7*s, -8*s, 4*s, -8*s, -2*s);
+    ctx.bezierCurveTo(-8*s, -8*s, -2*s, -8*s, 0, -4*s);
+    ctx.closePath();
+    const g = ctx.createLinearGradient(-size/2, -size/2, size/2, size/2);
+    g.addColorStop(0, 'rgba(255,77,166,' + (opacity) + ')');
+    g.addColorStop(1, 'rgba(255,209,102,' + (Math.min(1, opacity + 0.15)) + ')');
+    ctx.fillStyle = g;
+    ctx.shadowColor = 'rgba(255,77,166,0.15)';
+    ctx.shadowBlur = Math.min(24, size*0.9);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  class Heart {
+    constructor(){
+      this.reset(true);
+    }
+    reset(init=false){
+      this.z = Math.random()*700 - 100;
+      this.x = (Math.random()*W) - W/2;
+      this.y = (Math.random()*H) - H/2;
+      this.vz = 0.6 + Math.random()*1.6;
+      this.spin = (Math.random()-0.5)*0.03;
+      this.baseSize = 8 + Math.random()*36;
+      this.opacity = 0.25 + Math.random()*0.9;
+      if (init) {
+        this.z = Math.random()*700 - 100;
+      } else {
+        this.z = -120;
+        this.x = (Math.random()*W) - W/2;
+        this.y = (Math.random()*H) - H/2;
+      }
+    }
+    update(dt){
+      this.z += this.vz * dt;
+      this.x += Math.sin(this.z*0.004 + this.y*0.002)*0.15;
+      this.y += Math.cos(this.z*0.003 + this.x*0.002)*0.12;
+      if (this.z > 700) this.reset();
+    }
+    draw(ctx){
+      const f = 600;
+      const scale = f / (f + this.z);
+      const screenX = W/2 + this.x * scale;
+      const screenY = H/2 + this.y * scale;
+      const size = Math.max(2, this.baseSize * scale);
+      const angle = this.z * 0.002 + this.spin * performance.now()*0.001;
+      drawHeart(ctx, screenX, screenY, size, Math.max(0.12, this.opacity*scale), angle);
+    }
+  }
+
+  const hearts = [];
+  const COUNT = Math.max(36, Math.floor((W*H)/42000));
+  for (let i=0;i<COUNT;i++) hearts.push(new Heart());
+
+  let last = performance.now();
+  function tick(now){
+    const dt = (now - last) * 0.06;
+    last = now;
+    ctx.clearRect(0,0,W,H);
+    const vg = ctx.createRadialGradient(W*0.2, H*0.15, 0, W*0.5,H*0.6, Math.max(W,H));
+    vg.addColorStop(0, 'rgba(20,6,25,0.12)');
+    vg.addColorStop(1, 'rgba(0,0,0,0.12)');
+    ctx.fillStyle = vg;
+    ctx.fillRect(0,0,W,H);
+
+    hearts.sort((a,b)=>a.z - b.z);
+    for (let h of hearts){ h.update(dt); h.draw(ctx); }
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+
+  function resize(){
+    W = canvas.width = innerWidth;
+    H = canvas.height = innerHeight;
+    canvas.width = W * DPR;
+    canvas.height = H * DPR;
+    canvas.style.width = W + 'px';
+    canvas.style.height = H + 'px';
+    ctx.setTransform(1,0,0,1,0,0);
+    ctx.scale(DPR, DPR);
+  }
+  addEventListener('resize', () => { resize(); });
+
+  const card = document.querySelector('.card');
+  const layer = document.querySelector('.layer');
+  let mouseX=0, mouseY=0;
+  window.addEventListener('mousemove', (e)=>{
+    mouseX = (e.clientX / innerWidth) - 0.5;
+    mouseY = (e.clientY / innerHeight) - 0.5;
+    const tx = mouseX * 18;
+    const ty = -mouseY * 12;
+    if (card) card.style.transform = `translateZ(80px) perspective(900px) rotateX(${ty}deg) rotateY(${tx}deg)`;
+    if (layer) layer.style.transform = `translateZ(0) translateX(${ -mouseX*20 }px) translateY(${ -mouseY*12 }px)`;
+  });
+
+})();
+
+/* ---------------- form behaviour ------------------ */
+(() => {
+  const form = document.getElementById('loginForm');
+  const pass = document.getElementById('pass');
+  const toggle = document.getElementById('togglePass');
+
+  toggle.addEventListener('click', () => {
+    if (pass.type === 'password') { pass.type = 'text'; toggle.textContent = '🙈'; toggle.setAttribute('aria-pressed','true'); }
+    else { pass.type = 'password'; toggle.textContent = '👁️'; toggle.setAttribute('aria-pressed','false'); }
+  });
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const user = form.user.value.trim();
+    const pw = form.pass.value;
+    
+    const CORRECT_USER = "1";
+    const CORRECT_PASS = "1";
+    
+    if (!user || !pw) {
+      form.querySelectorAll('input').forEach(inp => {
+        if (!inp.value) inp.style.boxShadow = '0 8px 30px rgba(255,77,166,0.08)';
+        setTimeout(()=> inp.style.boxShadow = '', 900);
+      });
+      return;
+    }
+    
+    if (user === CORRECT_USER && pw === CORRECT_PASS) {
+      document.body.innerHTML = `
+        <canvas id="bgLove"></canvas>
+        <div style="
+          position: fixed;
+          inset: 0;
+          display: flex;
+          align-items: flex-start;
+          justify-content: center;
+          z-index: 20;
+          overflow-y: auto;
+          overflow-x: hidden;
+          padding: 30px 15px;">
+          
+          <div style="
+            max-width: 1400px;
+            width: 100%;
+            color: white;
+            font-size: clamp(20px, 3vw, 28px);
+            font-weight: 600;
+            text-align: center;
+            line-height: 1.9;
+            padding: 50px 30px;
+            background: rgba(0,0,0,0.6);
+            border-radius: 25px;
+            backdrop-filter: blur(15px);
+            margin: 20px auto;
+            box-shadow: 0 15px 60px rgba(0,0,0,0.5);
+            border: 2px solid rgba(255,77,166,0.2);">
+            
+            <h1 style="font-size: clamp(30px, 5vw, 45px); margin-bottom: 40px; color: #ff4da6; line-height: 1.6;">
+              Salam mən Abdullayev Əli ❤️
+            </h1>
+            
+            <div style="margin: 30px 0; font-size: clamp(22px, 3.5vw, 32px); color: #ffd166; line-height: 1.7;">
+              Salam Dünyam axır ki tapıb girdin kodu 😁❤️<br>
+              deməli sən bu kodu səmimi şəkildə özün tapmısansa,<br>
+              deməli sən mənim üçün çox özəl və dürüst insansan!
+            </div>
+            
+            <p style="margin: 25px 0; font-size: clamp(20px, 2.8vw, 26px); line-height: 1.8;">
+              Həyatında həmişə sevgi, xoşbəxtlik və uğurlar olsun! ❤️😍<br>
+              Səni çox sevirəm! 💖 və yaxşı ki səni tanımışam
+            </p>
+            
+            <p style="margin: 25px 0; font-size: clamp(20px, 2.8vw, 26px); line-height: 1.8;">
+              Hə birdə əgər bu sayta girmisənsə deməli mən özümü toplayıb səninlə danışmışam və səninlə hər çətinlikdə və hər yolda getməyə razı olmusan ❤️😊
+            </p>
+            
+            <p style="margin: 25px 0; font-size: clamp(20px, 2.8vw, 26px); line-height: 1.8;">
+              Həyatımız boyunca birlikdə hər yolda biryerdə olmağımıza söz vermişik! ❤️😍<br>
+              Deməli sən məni hər vəziyyətimlə qəbul etmisən və sonsuzluğa imza atmısan ❤️😊
+            </p>
+            
+            <p style="margin: 25px 0; font-size: clamp(20px, 2.8vw, 26px); line-height: 1.8;">
+              Həyatımız boyunca birlikdə hər yolda biryerdə olmağımıza söz vermişik! AZ eləbil evlilik təklifi elədim ey ❤️😍
+            </p>
+            
+            <h2 style="font-size: clamp(24px, 4vw, 36px); margin: 50px 0 30px; color: #ff7ab0; line-height: 1.6;">
+              səninlə hər dəfə biryerdə olanda sanki bir fərqli bir dünya kəşf edirəm ❤️😊
+            </h2>
+            
+            <h3 style="font-size: clamp(22px, 3.5vw, 32px); margin: 40px 0 25px; color: #ffd166;">
+              HƏ gəl sənə 15 sentyabrdan yazdığım günlüyümü danışım
+            </h3>
+            
+            <div style="text-align: left; padding: 0 20px; margin-top: 30px;">
+              <p style="margin: 20px 0; font-size: clamp(18px, 2.5vw, 24px); line-height: 1.8;">
+                Deməli 15 Sentyabr mən məktəbə gəlirəm səhvən gedib dərnəgülə minmişəm yuxulu yuxulu yatmışam gözümü açdım gördüm ki dərnəgüldəmişəm 😁
+              </p>
+              
+              <p style="margin: 20px 0; font-size: clamp(18px, 2.5vw, 24px); line-height: 1.8;">
+                təzədən dərnəgül metrosu ilə həri aslanova qayıtdım və ilk gündən gecikdim tam 27 dəqiqə gecikdim gəldim çatdım gördümki hələ veb dizaynərlərin adı dəftərdə yoxdu 😁
+              </p>
+              
+              <p style="margin: 20px 0; font-size: clamp(18px, 2.5vw, 24px); line-height: 1.8;">
+                hə vaxt gəldi sıra çadı bizə çağırdılar veb dizaynerlər gəlsin dedilər gəldik yolda dedimki mən burda oxuyacam ayda bıra nədi tüpürəsən bura burda oxumaq istəmirəm gedim çıxaram burdan
+              </p>
+              
+              <p style="margin: 20px 0; font-size: clamp(18px, 2.5vw, 24px); line-height: 1.8;">
+                çıxdıq 4 cü mərtəbəyə orda elnuru ibrahimi səni o birsiləri tam yaddaşımda deyə sənnən başqa 3 nəfər qız da var idi orda nəisə marqlı deyə olar mən keçdim pəncərə tərəfə oturmağa
+              </p>
+              
+              <p style="margin: 20px 0; font-size: clamp(18px, 2.5vw, 24px); line-height: 1.8;">
+                bir qız qayıdıb dediki zəhmət olmasa olar mən orda oturum dedim buyurun oturun keçdim 1 ci partaya oturdum
+              </p>
+              
+              <p style="margin: 20px 0; font-size: clamp(18px, 2.5vw, 24px); line-height: 1.8;">
+                sonra başladım elnur ilə ibrahimlə danışmağa baxdımki hər şeyi şişirdən elnurdu hər şeyi şişirdə şişirdə danışır özün çox dartır sonra isə ibrahim başladı danışmağa şişirdilmiş olaraq danışmır
+              </p>
+              
+              <p style="margin: 20px 0; font-size: clamp(18px, 2.5vw, 24px); line-height: 1.8;">
+                amma üstüörtülü çox gopa pasır oda hə nəisə biraz qabağa gedim heç siz tərəfə fikir belə vermədim biraz qabağa sarım və yoxlama gəldi dediki siz səf korpusdasınız gedirsiniz o biri korpusa əsas korpusa gedməlisiz orda
+              </p>
+            </div>
+            
+                
+              </p>
+            </div>
+            
+          </div>
+        </div>
+      `;
+      
+      // Love background animation
+      let c=document.getElementById("bgLove");
+      let ctx=c.getContext("2d");
+      function R(){c.width=innerWidth;c.height=innerHeight;}
+      addEventListener("resize",R);R();
+      let heart=[];
+      for(let i=0;i<120;i++){
+        heart.push({x:Math.random()*c.width,y:Math.random()*c.height,s:Math.random()*3+1,v:Math.random()*1.5+1,a:Math.random()*360})
+      }
+      function draw(){
+        ctx.clearRect(0,0,c.width,c.height);
+        heart.forEach(h=>{
+          h.y-=h.v;
+          h.a+=0.02;
+          if(h.y<0){h.y=c.height+30;h.x=Math.random()*c.width;}
+          ctx.save();
+          ctx.translate(h.x,h.y);
+          ctx.rotate(Math.sin(h.a)/2);
+          ctx.fillStyle=`rgba(255,0,120,${0.5+Math.random()*0.4})`;
+          ctx.beginPath();
+          ctx.moveTo(0,0);
+          ctx.bezierCurveTo(10,-10,20,5,0,20);
+          ctx.bezierCurveTo(-20,5,-10,-10,0,0);
+          ctx.fill();
+          ctx.restore();
+        });
+        requestAnimationFrame(draw);
+      }
+      draw();
+      
+    } else {
+      alert('❌ Səhv istifadəçi adı və ya parol! Yenidən cəhd et.');
+      form.pass.value = '';
+      form.pass.focus();
+    }
+  });
+
+  toggle.addEventListener('keydown', (ev)=>{
+    if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); toggle.click(); }
+  });
+})();
+
+</script>
+</body>
+</html>
